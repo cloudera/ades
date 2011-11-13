@@ -25,7 +25,7 @@
 # By default, the script will run 20 iterations from different random starting
 # points and keep the parameter settings that had the maximum log likelihood.
 
-library(BB)
+library(BB, quietly=TRUE)
 
 # The main pdf that we are trying to optimize.
 ebgm.f <- function(n, e, alpha, beta) {
@@ -66,12 +66,12 @@ ebgm.g.d <- function(n, e, alpha, beta, nstar, dx) {
 
 # Derivative of ebgm.g with respect to alpha.
 ebgm.g.da <- function(n, e, alpha, beta, nstar) {
-  ebgm.g.d(n, e, alpha, beta, nstar, ebgm.fda)
+  ebgm.g.d(n, e, alpha, beta, nstar, ebgm.f.da)
 }
 
 # Derivative of ebgm.g with respect to beta.
 ebgm.g.db <- function(n, e, alpha, beta, nstar) {
-  ebgm.g.d(n, e, alpha, beta, nstar, ebgm.fdb)
+  ebgm.g.d(n, e, alpha, beta, nstar, ebgm.f.db)
 }
 
 # The overall distribution function for n, computed as the
@@ -113,22 +113,22 @@ ebgm.optim <- function(x, e, w, theta=c(rexp(4), runif(1)), toler=0.01) {
   pi.ij <- matrix(NA, nrow = 2, ncol = n)
   for (i in 1:n) pi.ij[, i] <- pi.ij0[, i]/colSums(pi.ij0)[i]
   j <- 0
-  while (error > toler && j < 10000) {
+  cntrl <- list(noimp=10)
+  while (error > toler && j < 100) {
     oldp <- pi.ij
     olda1 <- alpha1
     olda2 <- alpha2
     oldb1 <- beta1
     oldb2 <- beta2
     oldll <- ebgm.ll(c(olda1, oldb1, olda2, oldb2, pi.ij[1]), x, e, w, nstar)
-    
-    alpha1 <- BBsolve(olda1, fn=d.loglik.alpha, beta=oldb1, N=x, E=e,
-                      W=w*oldp[1,], quiet=TRUE)$par
+    alpha1 <- BBsolve(olda1, d.loglik.alpha, beta=oldb1, N=x, E=e,
+                      W=w*oldp[1,], control=cntrl, quiet=TRUE)$par
     beta1 <- BBsolve(oldb1, d.loglik.beta, alpha=alpha1, N=x, E=e,
-                      W=w*oldp[1,], quiet=TRUE)$par
+                      W=w*oldp[1,], control=cntrl, quiet=TRUE)$par
     alpha2 <- BBsolve(olda2, d.loglik.alpha, beta=oldb2, N=x, E=e,
-                      W=w*oldp[2,], quiet=TRUE)$par
+                      W=w*oldp[2,], control=cntrl, quiet=TRUE)$par
     beta2 <- BBsolve(oldb2, d.loglik.beta, alpha=alpha2, N=x, E=e,
-                     W=w*oldp[2,], quiet=TRUE)$par
+                     W=w*oldp[2,], control=cntrl, quiet=TRUE)$par
     pi.j <- apply(oldp, 1, sum)/n
     theta.eb <- c(alpha1, beta1, alpha2, beta2, pi.j[1])
     if (any(theta.eb <= 0) | theta.eb[5] > 1) {
@@ -155,8 +155,8 @@ ebgm.main <- function(file, iter=20) {
   e <- data[[3]] / w
   max <- list(loglik=-Inf)
   for (i in 1:iter) {
-    res <- ebgm.optim(n, e, w)
-    if (res$loglik > max$loglik) {
+    res <- tryCatch(ebgm.optim(n, e, w), error=function(ex) {NULL})
+    if (!is.null(res) && res$loglik > max$loglik) {
       max <- res
     }
   }

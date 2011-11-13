@@ -28,7 +28,7 @@
  * Combinatorial UDF with an arity of 2 that we name 'Choose2'. Given an input
  * bag of data, Choose2 will generate the unique 2-element subsets of that bag.
  */
-REGISTER 'aers.jar';
+REGISTER 'target/ades-0.1.0-jar-with-dependencies.jar';
 DEFINE Choose2 com.cloudera.science.pig.Combinatorial('2');
 
 /**

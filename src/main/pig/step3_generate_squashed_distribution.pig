@@ -36,7 +36,7 @@
  * original data set into ten bins that are delimited by the quantile
  * values.
  */
-REGISTER 'aers.jar';
+REGISTER 'target/ades-0.1.0-jar-with-dependencies.jar';
 DEFINE Quantiles com.cloudera.science.pig.Quantile('11');
 DEFINE Bin com.cloudera.science.pig.Bin();
 

@@ -3,7 +3,7 @@
 ## Introduction
 
 This project contains code for running an analysis of adverse drug events using the
- Multi-Item Gamma Poisson Shrinker (MGPS) model described in DuMouchel and Pregibon,
+ Multi-Item Gamma Poisson Shrinker (MGPS) model described in
 [Empirical bayes screening for multi-item associations](http://dl.acm.org/citation.cfm?id=502526).
 
 ## Prerequistes

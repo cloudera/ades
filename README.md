@@ -2,6 +2,10 @@
 
 ## Introduction
 
+This project contains code for running an analysis of adverse drug events using the
+ Multi-Item Gamma Poisson Shrinker (MGPS) model described in DuMouchel and Pregibon,
+[Empirical bayes screening for multi-item associations](http://dl.acm.org/citation.cfm?id=502526).
+
 ## Prerequistes
 
 ### Code
@@ -17,9 +21,9 @@ copy of [R](http://www.r-project.org/) and [Gephi](http://gephi.org/) for certai
 The input data for this analysis may be downloaded from the FDA's [AERS website](http://www.fda.gov/Drugs/GuidanceComplianceRegulatoryInformation/Surveillance/AdverseDrugEffects/ucm083765.htm). You'll need to get the ASCII version of the data files for as many quarters as you would like to run over. For my own analysis, I used the data from 2008 through 2010.
 
 The Pig scripts below assume that the input data is stored in three HDFS directories under
-the user's home directory: aers/drugs, aers/demos, and aers/reactions. All of the DRUG*.TXT
-files from the AERS website should go into aers/drugs, all of the DEMO*.TXT files should go
-into aers/demos, and all of the REAC*.TXT files should go into aers/reactions.
+the user's home directory: aers/drugs, aers/demos, and aers/reactions. All of the DRUG\*.TXT
+files from the AERS website should go into aers/drugs, all of the DEMO\*.TXT files should go
+into aers/demos, and all of the REAC\*.TXT files should go into aers/reactions.
 
 ## Running the Pipeline
 
@@ -42,8 +46,8 @@ i.e., the directory that contains this README file.
 	pig -f src/main/pig/step3_generate_squashed_distribution.pig
 
 At this point, you can optionally run the R code to solve the MGPS
-optimization problem. You will need to install the *BB* library in your
-local version of R using *install.packages()* if you do not have it already.
+optimization problem. You will need to install the _BB_ library in your
+local version of R using _install.packages("BB")_ if you do not have it already.
 
 	hadoop fs -getmerge aers/drugs2_reacs_stats d2r_stats.csv
 	Rscript src/main/R/ebgm.R d2r_stats.csv

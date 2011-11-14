@@ -119,7 +119,7 @@ drugs1_reacs = FOREACH filtered_drugs_reacs_demos GENERATE flatten(drugs.name) a
  * record before taking the cross product with the reactions and demographic fields.
  */
 drugs2_reacs = FOREACH filtered_drugs_reacs_demos GENERATE flatten(Choose2(drugs.name)) as (d1, d2),
-    flatten(reacs.code) as reac, flatten(selected_demos);
+    flatten(reacs.code) as reac, flatten(selected_demos) PARALLEL 10;
 
 /**
  * The following statements compute aggregate counts of reported records, grouped by various

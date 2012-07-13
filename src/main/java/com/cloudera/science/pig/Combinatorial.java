@@ -106,13 +106,48 @@ public class Combinatorial extends EvalFunc<DataBag> {
       throw new IllegalArgumentException("Expected a bag; input has > 1 field");
     }
     try {
+    	
+    	
       if (input.getField(0).type != DataType.BAG) {
         throw new IllegalArgumentException("Expected a bag; found: " +
             DataType.findTypeName(input.getField(0).type));
       }
+      if (input.getField(0).schema.getField(0).type != DataType.TUPLE) {
+          throw new IllegalArgumentException("Expected a tuple in a bag; found: " +
+              DataType.findTypeName(input.getField(0).type));
+        }
       if (input.getField(0).schema.size() != 1) {
         throw new IllegalArgumentException("The bag must contain a single field");
       }
+      
+      Schema bagSchema = input.getField(0).schema;
+      Schema tupleSchema = bagSchema.getField(0).schema;      
+
+      byte fieldType = tupleSchema.getField(0).type;
+            
+      if (!isComparable(fieldType)) {
+        throw new IllegalArgumentException("The bag's Tulple's field must be a comparable type");
+      }
+      
+      //What does this code want to do ??
+      FieldSchema inputField = tupleSchema.getField(0);
+      String inputName = inputField.alias;
+      List<FieldSchema> fields = Lists.newArrayList();
+      for (int i = 0; i < arity; i++) {
+        fields.add(new FieldSchema(inputName + i, inputField.type));
+      }
+      Schema newTupleSchema = new Schema(fields);
+      
+      FieldSchema tupleFieldSchema = new FieldSchema(inputName + "tuple", newTupleSchema,
+          DataType.TUPLE);
+      
+      Schema newBagSchema = new Schema(tupleFieldSchema);
+      //bagSchema.setTwoLevelAccessRequired(true);
+      Schema.FieldSchema bagFieldSchema = new Schema.FieldSchema(inputName + "bag",
+    		  newBagSchema, DataType.BAG);
+      return new Schema(bagFieldSchema);
+      
+      /*
       byte bagType = input.getField(0).schema.getField(0).type;
       if (bagType == DataType.TUPLE) {
         bagType = input.getField(0).schema.getField(0).schema.getField(0).type;
@@ -137,6 +172,7 @@ public class Combinatorial extends EvalFunc<DataBag> {
       Schema.FieldSchema bagFieldSchema = new Schema.FieldSchema(inputName + "bag",
           bagSchema, DataType.BAG);
       return new Schema(bagFieldSchema);
+      */
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

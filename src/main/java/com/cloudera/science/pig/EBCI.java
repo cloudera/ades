@@ -45,7 +45,7 @@ public class EBCI extends EvalFunc<Double> {
       this.g2 = g2;
     }
     
-    @Override
+    
     public double value(double lambda) throws FunctionEvaluationException {
       return p * g1.density(lambda) + (1.0 - p) * g2.density(lambda);
     }
@@ -62,7 +62,6 @@ public class EBCI extends EvalFunc<Double> {
       this.integrator = new SimpsonIntegrator();
     }
     
-    @Override
     public double value(double lambda) throws FunctionEvaluationException {
       try {
         if (lambda == 0.0) {
@@ -77,7 +76,6 @@ public class EBCI extends EvalFunc<Double> {
       return Double.POSITIVE_INFINITY;
     }
 
-    @Override
     public UnivariateRealFunction derivative() {
       return pi;
     }

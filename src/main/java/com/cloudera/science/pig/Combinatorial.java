@@ -101,42 +101,65 @@ public class Combinatorial extends EvalFunc<DataBag> {
   }
   
   @Override
+  /**
+   * This UDF is given a Bag of Tuples of Comparables.  
+   *    Describe output: ({name:chararray})
+   * 
+   * We want to output a Bag of Tuples of X of Comparables.  X being equal to arity
+   * 	Describe should output: ({name0:chararray, name1:chararray})s
+   */
   public Schema outputSchema(Schema input) {
     if (input.size() != 1) {
       throw new IllegalArgumentException("Expected a bag; input has > 1 field");
     }
     try {
+    	
+      //Run some error checking
       if (input.getField(0).type != DataType.BAG) {
         throw new IllegalArgumentException("Expected a bag; found: " +
             DataType.findTypeName(input.getField(0).type));
       }
+      if (input.getField(0).schema.getField(0).type != DataType.TUPLE) {
+          throw new IllegalArgumentException("Expected a tuple in a bag; found: " +
+              DataType.findTypeName(input.getField(0).type));
+        }
       if (input.getField(0).schema.size() != 1) {
         throw new IllegalArgumentException("The bag must contain a single field");
       }
-      byte bagType = input.getField(0).schema.getField(0).type;
-      if (bagType == DataType.TUPLE) {
-        bagType = input.getField(0).schema.getField(0).schema.getField(0).type;
-      }
-      if (!isComparable(bagType)) {
-        throw new IllegalArgumentException("The bag's field must be a comparable type");
+      
+      //just to bucket schemas because we will be going 3 levels deep
+      Schema bagSchema = input.getField(0).schema;
+      Schema tupleSchema = bagSchema.getField(0).schema;      
+
+      byte fieldType = tupleSchema.getField(0).type;
+            
+      if (!isComparable(fieldType)) {
+        throw new IllegalArgumentException("The bag's Tulple's field must be a comparable type");
       }
       
-      FieldSchema inputField = input.getField(0).schema.getField(0);
+      FieldSchema inputField = tupleSchema.getField(0);
       String inputName = inputField.alias;
+      
+      //Define how many fields will be in the tuple
       List<FieldSchema> fields = Lists.newArrayList();
       for (int i = 0; i < arity; i++) {
         fields.add(new FieldSchema(inputName + i, inputField.type));
       }
-      Schema tupleSchema = new Schema(fields);
+      Schema newTupleSchema = new Schema(fields);
       
-      FieldSchema tupleFieldSchema = new FieldSchema(inputName + "tuple", tupleSchema,
+      //Define the tuple
+      FieldSchema tupleFieldSchema = new FieldSchema(inputName + "tuple", newTupleSchema,
           DataType.TUPLE);
       
-      Schema bagSchema = new Schema(tupleFieldSchema);
-      bagSchema.setTwoLevelAccessRequired(true);
+      //Define Bag
+      Schema newBagSchema = new Schema(tupleFieldSchema);
+      //bagSchema.setTwoLevelAccessRequired(true); // This was deprecated.  TODO why was this there.
       Schema.FieldSchema bagFieldSchema = new Schema.FieldSchema(inputName + "bag",
-          bagSchema, DataType.BAG);
+    		  newBagSchema, DataType.BAG);
+      
+      
       return new Schema(bagFieldSchema);
+      
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

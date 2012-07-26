@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.MathRuntimeException;
 import org.apache.commons.math.analysis.DifferentiableUnivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.integration.SimpsonIntegrator;
@@ -45,7 +46,7 @@ public class EBCI extends EvalFunc<Double> {
       this.g2 = g2;
     }
     
-    @Override
+    
     public double value(double lambda) throws FunctionEvaluationException {
       return p * g1.density(lambda) + (1.0 - p) * g2.density(lambda);
     }
@@ -62,7 +63,6 @@ public class EBCI extends EvalFunc<Double> {
       this.integrator = new SimpsonIntegrator();
     }
     
-    @Override
     public double value(double lambda) throws FunctionEvaluationException {
       try {
         if (lambda == 0.0) {
@@ -73,11 +73,14 @@ public class EBCI extends EvalFunc<Double> {
         e.printStackTrace();
       } catch (IllegalArgumentException e) {
         e.printStackTrace();
+      } catch (Exception e)
+      {
+        
+    	  throw new RuntimeException("lambda-" + lambda,e);
       }
       return Double.POSITIVE_INFINITY;
     }
 
-    @Override
     public UnivariateRealFunction derivative() {
       return pi;
     }
@@ -97,6 +100,9 @@ public class EBCI extends EvalFunc<Double> {
         Double.valueOf(alpha2), Double.valueOf(beta2), Double.valueOf(p));
   }
   
+  
+  
+  
   public EBCI(double target, double alpha1, double beta1,
       double alpha2, double beta2, double p) {
     this.target = target;
@@ -113,12 +119,20 @@ public class EBCI extends EvalFunc<Double> {
     GammaDistribution g2 = new GammaDistributionImpl(alpha2 + n, beta2 + e);
     PiFunction pi = new PiFunction(q.eval(n, e), g1, g2);
     PiFunctionIntegral ipi = new PiFunctionIntegral(pi, target);
+    
+    
+    
     try {
       return (new BrentSolver()).solve(ipi, 0.0, 10.0, 0.01);
     } catch (ConvergenceException e1) {
       e1.printStackTrace();
     } catch (FunctionEvaluationException e1) {
       e1.printStackTrace();
+    } catch (RuntimeException e1)
+    {
+    	//MathRuntimeException function values at endpoints do not have different signs 
+    	e1.printStackTrace();
+		
     }
     return -1.0;
   }

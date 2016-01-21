@@ -43,7 +43,7 @@ drugs = LOAD 'aers/drugs' USING PigStorage('$') AS (
     vbm: long, route: chararray, dose_vbm: chararray, dechal: chararray, rechal: chararray,
     lot: long, exp_dt: chararray, nda: long);
 demos = LOAD 'aers/demos' USING PigStorage('$') AS (
-    isr: long, case: int, if_cod: chararray, foll_seq: chararray, image: chararray,
+    isr: long, case_id: int, if_cod: chararray, foll_seq: chararray, image: chararray,
     event_dt: chararray, mfr_dt: chararray, fda_dt: chararray, rept_code: chararray,
     mfr_num: chararray, mfr_sndr: chararray, age: long, age_code: chararray,
     gender: chararray, e_sub: chararray, weight: long, wt_code: chararray,
@@ -70,8 +70,8 @@ demos = FILTER demos BY age_code == 'YR' and (gender == 'M' or gender == 'F') an
  * For simplicity, we simply choose the minimum ISR number for each case identifier
  * as the representative report for that patient.
  */
-demos_by_case = GROUP demos BY case;
-selected = FOREACH demos_by_case GENERATE MIN(demos.isr) as isr;
+demos_by_case_id = GROUP demos BY case_id;
+selected = FOREACH demos_by_case_id GENERATE MIN(demos.isr) as isr;
 
 /**
  * Now we filter the demographics data to only include the reports that we selected

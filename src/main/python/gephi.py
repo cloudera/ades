@@ -44,7 +44,7 @@ print """<?xml version="1.0" encoding="UTF8"?>
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd"
  version="1.2">
-  <meta lastmodifieddate="20111012">
+  <meta lastmodifieddate="2011-10-12">
     <creator>Cloudera</creator>
     <description>A network of drug-drug relationships</description>
   </meta>

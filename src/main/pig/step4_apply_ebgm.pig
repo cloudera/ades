@@ -31,7 +31,7 @@
  * function are the same, except we specify the target confidence level as
  * the first argument-- in this case, 0.05.
  */
-REGISTER 'target/ades-0.1.0-jar-with-dependencies.jar';
+REGISTER 'target/ades-0.2.1-jar-with-dependencies.jar';
 DEFINE EBGM com.cloudera.science.pig.EBGM(
     '6.810308e-07',
     '2.364503e-01',
